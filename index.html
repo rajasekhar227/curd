@@ -1,0 +1,353 @@
+<html>
+<head>
+    <style type="text/css">
+  .button {
+          background-color: rgb(114, 179, 9);
+          font-weight: normal;
+          font-size: 12px;
+          border: solid 1px #c1c1c1;
+          margin: 0 2px;
+          padding: 2px 15px;
+          cursor: pointer;
+          -webkit-border-radius: 15px;
+          -moz-border-radius: 15px;
+          text-shadow: 0 1px 0 white;
+  }
+  .lightBox {
+          background-color: #FFFFFF;
+          height: auto;
+          left: 32%;
+          position: fixed;
+          top: 30%;
+          width: 34%;
+          z-index: 1000;
+          padding: 24px;
+  }
+  #overlay {
+          background-color:rgba(0,0,0,.4);
+          width:100%;
+          height:100%;
+          top:0; left:0;
+          position:fixed;
+          z-index:999;
+  }
+
+
+  .lightBox table {
+          font-size: 13px;
+  }
+  .dataGrid{
+          font-size:0.8em;
+  }
+  .dataGrid tr:first-child td {
+          background-color:#ededed;
+          border-bottom:solid 1px #e2e2e2;
+          font-weight:bold;
+  }
+  .dataGrid td {
+          border-bottom:solid 1px #e7e7e7;
+  }
+  .dataGrid tr:nth-child(2n+3) td	{
+          background-color:#f2f2f2; font-weight:normal;
+  }
+  #pagination {
+          width: 100%;
+          text-align: center;
+  }
+  #pagination ul li {
+          display: inline;
+          margin-left: 10px;
+  }
+
+    </style>
+    <style type="text/css">
+  .paging-nav {
+          text-align: right;
+          padding-top: 2px;
+  }
+  .paging-nav a {
+          margin: auto 1px;
+          text-decoration: none;
+          display: inline-block;
+          padding: 1px 7px;
+          background: #335DFF;
+          color: white;
+          border-radius: 3px;
+  }
+  .paging-nav .selected-page {
+          background: #187ed5;
+          font-weight: bold;
+  }
+
+  .paging-nav, #tableData {
+          width: 400px;
+          margin: 0 auto;
+          font-family: Arial, sans-serif;
+  }
+
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="page.js"></script>
+</head>
+<body>
+<div id="overlay" style="display:none"></div>
+<div id="openwindow_id" style="display:none" class="lightBox">
+</div>
+<div id="dynamicgrid">
+</div>
+</body>
+</html>
+
+<script type="text/javascript">
+$(function()
+{
+
+    $(document).on('click','.chballcount',function(){
+        var totalchecked = $('.chballcount:checked').length;
+        if(totalchecked == 1)
+        {
+           $('#edit_user_id').show();
+        }else{
+           $('#edit_user_id').hide();
+        }
+    });
+
+	 $(".dataGrid").remove();
+	 $.ajax({
+         url: 'https://jsonplaceholder.typicode.com/posts',
+         contentType: "application/json; charset=utf-8",
+         success: function(response)
+         {
+         		var htmldata ='';
+         			htmldata +='<form><table id="view_id" width="80%" align="center" class="dataGrid">';
+         			htmldata +='<tr><td colspan="5"><span style="float:right"><input type="button" value="Add" onclick="addnew();"></span><span style="float:right"><input type="button" id="edit_user_id" value="EDIT" onclick="edituser();" style="display:none;"></span></td></tr>';
+         			htmldata +='<tr>';
+         			htmldata +='<td></td>';
+         			htmldata +='<td>USER ID';
+         			htmldata +='</td>';
+         			htmldata +='<td>Title';
+         			htmldata +='</td>';
+         			htmldata +='<td>Body';
+         			htmldata +='</td>';
+         			htmldata +='<td>';
+         			htmldata +='</td>';
+         			htmldata +='</tr>';
+            		$.each(response,function(key,value)
+            		{
+
+            				htmldata +='<tr id="tr_remove'+value.id+'">';
+            				htmldata +='<td ><input type="checkbox" id="chbremove_id_'+value.id+'" value="'+value.id+'" class="chballcount"></td>';	
+            				htmldata +='<td>';
+            				htmldata +=	value.id;
+            				htmldata +='</td>';
+            				htmldata +='<td>';
+            				htmldata +=	value.title;
+            				htmldata +='</td>';
+            				htmldata +='<td>';
+            				htmldata +=	value.body;
+            				htmldata +='</td>';
+         					htmldata +='</tr>';
+            		})
+          			htmldata +='</table></form>';
+          			htmldata +='<tr>';
+            		htmldata +='<td>';
+            		htmldata +='<input type="button" value="delete" onclick="RemoveChbAll();" style="margin-left:10%">';
+            		htmldata +='</td>';
+            		htmldata +='</tr>';
+          			$("#dynamicgrid").append(htmldata);
+					$('.dataGrid').paging({limit:20});
+         }
+       });
+});
+
+
+function addnew()
+{
+	$("#overlay").show();
+	$("#openwindow_id").show();
+	$("#openwindow_id").html('');
+	var htmldata='';
+		htmldata +='<table width="50%"  align="center">';
+		htmldata +='<tr>';
+		htmldata +='<td>UserId</td>';
+		htmldata +='<td><input type="text" id="UserId"></td></tr>';
+		htmldata +='<tr>';
+		htmldata +='<td>Title</td>';
+		htmldata +='<td><input type="text" id="titleId"></td>	</tr>';
+		htmldata +='<tr>';
+		htmldata +='<td>Body</td>';
+		htmldata +='<td><input type="text" id="bodyId"></td></tr>';
+		htmldata +='<tr>';
+		htmldata +='<td ></td>';
+		htmldata +='<td ><input  type="button" class="button" value="Adding" onclick="Adding();"></td></tr></table>';
+		$("#openwindow_id").html(htmldata);
+}
+
+function Adding()
+{
+	var UserId = $("#UserId").val();
+	var titleId = $("#titleId").val();
+	var bodyId = $("#bodyId").val();
+	if(UserId=='')
+	{
+		$("#UserId").css('border','1px solid red');
+		$("#UserId").focus();
+		return false;
+	}
+	else
+	{
+		$("#UserId").css('border-color','');
+	}
+	if(titleId=='')
+	{
+		$("#titleId").css('border-color','red 1px solid');
+		$("#titleId").focus();
+		return false;
+	}
+	else
+	{
+		$("#titleId").css('border-color','');
+	}
+	if(bodyId=='')
+	{
+		$("#bodyId").css('border-color','red 1px solid');
+		$("#bodyId").focus();
+		return false;
+	}
+	else
+	{
+		$("#bodyId").css('border-color','');
+	}
+	var UserId = $("#UserId").val();
+	var titleId = $("#titleId").val();
+	var bodyId = $("#bodyId").val();
+	if(UserId !=''  && titleId !='' &&bodyId !='')
+	{
+			$.ajax({
+		         url: 'https://jsonplaceholder.typicode.com/posts',
+		         method: 'POST',
+		         dataType : "json",
+                 contentType: "application/json; charset=utf-8",
+		         data :JSON.stringify({title: titleId,body: bodyId,userId: UserId}),
+		         success: function(response)
+		         {
+                    console.log(response)
+		         	if(response.id > 0)
+		         	{
+		         		$("#overlay").hide();
+						$("#openwindow_id").hide();
+		         	}
+		         }
+		     });
+	}	
+}
+
+
+function edituser()
+{	
+	$("#overlay").show();
+	$("#openwindow_id").show();
+    var id = $('.chballcount:checked').val();
+		$.ajax({
+	         url: 'https://jsonplaceholder.typicode.com/posts/'+id,
+	         dataType: 'json',
+	         success: function(response)
+	         {
+					var htmldata='';
+					htmldata +='<form id="updatefrm_id"><table width="50%"  align="center">';
+					htmldata +='<tr>';
+					htmldata +='<td>UserId</td>';
+					htmldata +='<td><input type="text" id="UserId" value="'+response.userId+'"></td></tr>';
+					htmldata +='<tr>';
+					htmldata +='<td>Title</td>';
+					htmldata +='<td><textarea id="titleId">'+response.title+'</textarea></td>	</tr>';
+					htmldata +='<tr>';
+					
+					htmldata +='<td>Body</td>';
+					htmldata +='<td><textarea id="bodyId">'+response.body+'</textarea></td></tr>';
+					htmldata +='<tr>';
+					htmldata +='<td ></td>';
+					htmldata +='<td ><input  type="button" class="button" value="Update" onclick="Update('+id+');"></td></tr></table></form>';
+					$("#openwindow_id").html(htmldata);
+	         }
+	     });
+}
+
+
+function delteform(id,user_id)
+{
+	if (confirm("Are you sure?")) {
+		$("#tr_remove"+id).remove();
+		$.ajax({
+	         url: 'https://jsonplaceholder.typicode.com/posts/'+id,
+	         method :'DELETE',
+	         dataType: 'json',
+	         success: function(response)
+	         {
+	         }});
+        
+    }
+    return false;
+}
+
+function Update(id)
+{
+	var UserId = $("#UserId").val();
+	var titleId = $("#titleId").val();
+	var bodyId = $("#bodyId").val();
+	$.ajax({
+            url: 'https://jsonplaceholder.typicode.com/posts/'+id,
+            method: 'PATCH',
+            dataType : "json",
+            contentType: "application/json; charset=utf-8",
+            data :JSON.stringify({title: titleId,body: bodyId,userId: UserId}),
+            success: function(response)
+            {
+
+               if(response)
+               {
+                   alert('updated success');
+                   $("#overlay").hide();
+                   $("#openwindow_id").hide();
+                   location.reload();
+               }
+            }
+    });
+}
+
+function RemoveChbAll()
+{
+    var totalchecked = $('.chballcount:checked').length
+    if(totalchecked > 0)
+    {
+      if (confirm("Are you sure?")) {
+        $('.chballcount').each(function() {
+
+              if ($("#"+this.id).is(':checked'))
+              {
+                 var id = $(this).val();
+
+                      $.ajax({
+                       url: 'https://jsonplaceholder.typicode.com/posts/'+id,
+                       method :'DELETE',
+                       dataType: 'json',
+                       success: function(response)
+                       {
+                          $("#tr_remove"+id).remove();
+                       }
+                      });
+
+              }
+        });
+      }
+    }else{
+      alert('select atlease one user');
+      return false;
+    }
+}
+
+
+</script>
+
+
